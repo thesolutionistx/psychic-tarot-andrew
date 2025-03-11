@@ -1,4 +1,3 @@
-# app/layout.tsx
 import './globals.css';
 import { Metadata } from 'next';
 import { NextAuthProvider } from './providers';
