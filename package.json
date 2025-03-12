@@ -11,7 +11,7 @@
   "dependencies": {
     "@prisma/client": "4.15.0",
     "bcryptjs": "2.4.3",
-    "next": "13.4.6",
+    "next": "^13.5.8",
     "next-auth": "4.24.11",
     "openai": "4.9.0",
     "react": "18.2.0",
