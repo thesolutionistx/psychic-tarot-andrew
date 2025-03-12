@@ -10,14 +10,15 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.id) {
     return NextResponse.json({ success: false }, { status: 401 });
   }
+
   const userId = Number(session.user.id);
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     return NextResponse.json({ success: false }, { status: 404 });
   }
 
-  // Here you'd integrate with Stripe, PayPal, etc. to confirm real payment. 
-  // For now, this is a mock that simply adds 20 tokens.
+  // Integrate with Stripe, PayPal, etc. in production.
+  // This mock simply adds 20 tokens:
   const updated = await prisma.user.update({
     where: { id: userId },
     data: { tokens: user.tokens + 20 }

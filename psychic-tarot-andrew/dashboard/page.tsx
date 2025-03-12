@@ -69,9 +69,9 @@ export default function DashboardPage() {
                     </p>
                     <p className="my-2 text-sm">
                       Cards:{" "}
-                      {spread
-                        .map((c: any) => `${c.name}${c.reversed ? " (Reversed)" : ""}`)
-                        .join(", ")}
+                      {spread.map((c: any) =>
+                        `${c.name}${c.reversed ? " (Reversed)" : ""}`
+                      ).join(", ")}
                     </p>
                     {r.advancedText && (
                       <div className="text-sm bg-gray-100 p-2 rounded">

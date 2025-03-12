@@ -8,6 +8,7 @@ export default function AdvancedReadingPage() {
   const [readingText, setReadingText] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [tokensLeft, setTokensLeft] = useState<number | null>(null);
+
   const searchParams = useSearchParams();
   const rid = searchParams.get("rid");
 
@@ -41,11 +42,14 @@ export default function AdvancedReadingPage() {
   if (!rid) {
     return <div className="mt-10">No reading ID.</div>;
   }
+
   return (
     <div className="max-w-2xl w-full mt-10 flex flex-col gap-6">
       <h2 className="text-2xl font-bold">Advanced Reading</h2>
       {loading && <div>Loading...</div>}
-      {!loading && errorMsg && <div className="text-red-500">{errorMsg}</div>}
+      {!loading && errorMsg && (
+        <div className="text-red-500">{errorMsg}</div>
+      )}
       {!loading && readingText && (
         <div className="whitespace-pre-wrap bg-white text-black p-4 rounded">
           {readingText}

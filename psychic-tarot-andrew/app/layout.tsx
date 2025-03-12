@@ -1,6 +1,6 @@
 import './globals.css';
-import { Metadata } from 'next';
 import { NextAuthProvider } from './providers';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Psychic Tarot Andrew',
