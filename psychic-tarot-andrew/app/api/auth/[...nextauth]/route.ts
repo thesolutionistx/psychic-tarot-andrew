@@ -1,7 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+// Fix "has no default export" error from bcryptjs by importing as a namespace:
+import * as bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -32,22 +33,24 @@ export const authOptions: NextAuthOptions = {
               tokens: 0
             }
           });
-          return { id: newUser.id + "", email: newUser.email };
+          return { id: String(newUser.id), email: newUser.email };
         } else {
           // Verify existing user's password
           const match = await bcrypt.compare(credentials.password, existing.passwordHash);
           if (!match) return null;
-          return { id: existing.id + "", email: existing.email };
+          return { id: String(existing.id), email: existing.email };
         }
       }
     })
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // If user signs in or registers, attach their ID to the token
       if (user?.id) token.id = user.id;
       return token;
     },
     async session({ session, token }) {
+      // Make user.id available on the client
       if (token?.id) session.user.id = token.id;
       return session;
     }
