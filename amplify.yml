@@ -17,4 +17,3 @@ applications:
       cache:
         paths:
           - psychic-tarot-andrew-app/node_modules/**/*
-
