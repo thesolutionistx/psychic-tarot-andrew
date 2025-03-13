@@ -1,62 +1,42 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
-// Fix "has no default export" error from bcryptjs by importing as a namespace:
-import * as bcrypt from "bcryptjs";
+import NextAuth from "next-auth";
+import GithubProvider from "next-auth/providers/github";
 
-const prisma = new PrismaClient();
-
-export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
-  session: { strategy: "jwt" },
+// Configure NextAuth. If you have additional providers or custom settings in your repo,
+// include them here or import them from another module.
+const authOptions = {
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) return null;
-
-        const existing = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
-
-        if (!existing) {
-          // Create new user if doesn't exist
-          const hash = await bcrypt.hash(credentials.password, 10);
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              passwordHash: hash,
-              tokens: 0
-            }
-          });
-          return { id: String(newUser.id), email: newUser.email };
-        } else {
-          // Verify existing user's password
-          const match = await bcrypt.compare(credentials.password, existing.passwordHash);
-          if (!match) return null;
-          return { id: String(existing.id), email: existing.email };
-        }
-      }
-    })
+    GithubProvider({
+      clientId: process.env.GITHUB_ID ?? "",
+      clientSecret: process.env.GITHUB_SECRET ?? "",
+    }),
+    // Add more providers here if needed.
   ],
+  // Optional: Use JWT session strategy if required.
+  session: {
+    strategy: "jwt",
+  },
+  // Optional: Custom callbacks can be added here.
   callbacks: {
-    async jwt({ token, user }) {
-      // If user signs in or registers, attach their ID to the token
-      if (user?.id) token.id = user.id;
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
       return token;
     },
     async session({ session, token }) {
-      // Make user.id available on the client
-      if (token?.id) session.user.id = token.id;
+      // Attach the accessToken to the session if available.
+      session.user = {
+        ...session.user,
+        accessToken: token.accessToken,
+      };
       return session;
-    }
-  }
+    },
+  },
+  // Optional: Additional NextAuth configuration (pages, debug, etc.) can be added here.
 };
 
+// Create the NextAuth handler.
 const handler = NextAuth(authOptions);
 
+// Export the handler for both GET and POST requests as required by the App Router.
 export { handler as GET, handler as POST };
